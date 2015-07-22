@@ -7,7 +7,7 @@
     <title>Timeperiod</title>
     <!-- <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.10.0/angular-material.min.css"> -->
     <link rel="stylesheet" href="{% static 'timeperiod/libs/angular_material/0.10.0/angular-material.min.css' %}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic"> -->
     <link rel="stylesheet" href="{% static 'timeperiod/app.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
@@ -30,7 +30,7 @@
               <p>Periods: [[ activity.periods.length ]] <span ng-show="activity.running">Running...</span></p>
             </div>
 
-            <md-button class="md-fab" ng-click="activities.toggleRunning(activity)">
+            <md-button class="md-fab" aria-label="Activity edition" ng-click="activities.toggleRunning(activity)">
               <md-icon md-svg-src="[[activities.getAVImage(activity)]]" ></md-icon>
             </md-button>
             <!-- <md-switch ng-model="activity.running" ng-disabled="activity.editing"></md-switch> -->
