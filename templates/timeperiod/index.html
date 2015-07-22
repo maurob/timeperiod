@@ -36,22 +36,25 @@
             <!-- <md-switch ng-model="activity.running" ng-disabled="activity.editing"></md-switch> -->
           </md-list-item>
 
-
           <!-- Activity item edition -->
-          <md-list-item ng-show="activity.editing">
-            <md-content layout="column">
-              <md-input-container>
-                <label>Activity name</label>
-                <input ng-model="activity.name">
-              </md-input-container>
-              <md-list ng-show="activity.periods.length">
-                <md-subheader>Periods</md-subheader>
-                <md-list-item ng-repeat="period in activity.periods">
-                  [[period]]
-                </md-list-item>
-              </md-list>
-            </md-content>
-          </md-list-item>
+          <div ng-show="activity.editing">
+            <md-divider></md-divider>
+            <md-list-item>
+              <md-content layout="column">
+                <md-input-container>
+                  <label>Activity name</label>
+                  <input ng-model="activity.name">
+                </md-input-container>
+                <md-list ng-show="activity.periods.length">
+                  <md-subheader>Periods</md-subheader>
+                  <md-list-item ng-repeat="period in activity.periods">
+                    [[period]]
+                  </md-list-item>
+                </md-list>
+              </md-content>
+            </md-list-item>
+          </div>
+
           <md-divider></md-divider>
 
       </div>
