@@ -1,64 +1,63 @@
 (function() {
-  'use strict';
-  
-  var app = angular.module('timeperiod', ['ngResource', 'ngMaterial']);
+    'use strict';
+    
+    angular.module('timeperiod', ['ngResource', 'ngMaterial'])
 
-  app.config(function($interpolateProvider, $httpProvider) {
-    // Force angular to use square brackets for template tag
-    // The alternative is using {% verbatim %}
-    $interpolateProvider.startSymbol('[[').endSymbol(']]');
+    .config(function($interpolateProvider, $httpProvider) {
+        // Force angular to use square brackets for template tag
+        // The alternative is using {% verbatim %}
+        $interpolateProvider.startSymbol('[[').endSymbol(']]');
 
-    // CSRF Support
-    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-  });
-
-  app.factory('User', ['$resource', function($resourse) {
-    return $resourse('api/users/:id/', {id: 'current'});
-  }]);
-  
-  app.factory('Activity', ['$resource', function($resourse) {
-    return $resourse('api/users/:id/activities/', {id: 'current'});
-  }]);
-
-  app.controller('ActivitiesCtrl', ['Activity', function(Activity) {
-    var vm = this;
-    vm.list = [];
-
-    Activity.query(function(list){
-      vm.list = list;
+        // CSRF Support
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     })
 
-    vm.new = function(){
-      vm.list.push({name:'', periods:[]})
-    }
+    .factory('User', ['$resource', function($resourse) {
+        return $resourse('api/users/:id/', {id: 'current'});
+    }])
+    
+    .factory('Activity', ['$resource', function($resourse) {
+        return $resourse('api/users/:id/activities/', {id: 'current'});
+    }])
 
-    vm.edit = function(activity) {
-      if(activity.editing)
-        activity.editing = false;
-      else
-        activity.editing = true;
-    }
+    .controller('ActivitiesCtrl', ['Activity', function(Activity) {
+        var vm = this;
+        vm.list = [];
 
-    vm.toggleRunning = function(activity) {
-      if(activity.running)
-        activity.running = false;
-      else
-        activity.running = true;
-    }
+        Activity.query(function(list){
+            vm.list = list;
+        })
 
-    vm.getAVImage = function(activity) {
-      if(activity.running)
-        return "/static/timeperiod/mdi/av/svg/production/ic_pause_48px.svg";
-      else
-        return "/static/timeperiod/mdi/av/svg/production/ic_play_arrow_48px.svg";
-    }
+        vm.new = function(){
+            vm.list.push({name:'', periods:[]})
+        }
 
-    app.controller('PeriodCtrl', function() {
+        vm.edit = function(activity) {
+            if(activity.editing)
+                activity.editing = false;
+            else
+                activity.editing = true;
+        }
+
+        vm.toggleRunning = function(activity) {
+            if(activity.running)
+                activity.running = false;
+            else
+                activity.running = true;
+        }
+
+        vm.getAVImage = function(activity) {
+            if(activity.running)
+                return "/static/timeperiod/mdi/av/svg/production/ic_pause_48px.svg";
+            else
+                return "/static/timeperiod/mdi/av/svg/production/ic_play_arrow_48px.svg";
+        }
+
+    }])
+
+    .controller('PeriodCtrl', function() {
 
     });
-      
-
-  }]);
 
 })();
