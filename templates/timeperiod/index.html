@@ -1,3 +1,83 @@
- <!DOCTYPE html>
- <html ng-app="timeperiod">
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html ng-app="timeperiod">
+  <head>
+    <meta charset="utf-8">
+    <title>Timeperiod</title>
+    <!-- <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.10.0/angular-material.min.css"> -->
+    <link rel="stylesheet" href="{% static 'timeperiod/libs/angular_material/0.10.0/angular-material.min.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
+    <link rel="stylesheet" href="{% static 'timeperiod/app.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body ng-controller="ActivitiesCtrl as activities">
+    <md-content>
+      <md-list>
+        <md-subheader>Activities</md-subheader>
+        <md-divider></md-divider>
+        <div ng-repeat="activity in activities.list">
+
+          <!-- Activity item summary -->
+          <md-list-item class="md-3-line">
+            
+            <md-button class="md-primary" aria-label="Edit activity" ng-click="activities.edit(activity)">
+              <md-icon md-svg-src="{% static 'timeperiod/mdi/navigation/svg/production/ic_arrow_drop_down_24px.svg' %}"></md-icon>
+            </md-button>
+            
+            <div class="md-list-item-text">
+              <h3>[[ activity.name ]]</h3>
+              <p>Periods: [[ activity.periods.length ]] <span ng-show="activity.running">Running...</span></p>
+            </div>
+
+            <md-button class="md-fab" ng-click="activities.toggleRunning(activity)">
+              <md-icon md-svg-src="[[activities.getAVImage(activity)]]" ></md-icon>
+            </md-button>
+            <!-- <md-switch ng-model="activity.running" ng-disabled="activity.editing"></md-switch> -->
+          </md-list-item>
+
+
+          <!-- Activity item edition -->
+          <md-list-item ng-show="activity.editing">
+            <md-content layout="column">
+              <md-input-container>
+                <label>Activity name</label>
+                <input ng-model="activity.name">
+              </md-input-container>
+              <md-list ng-show="activity.periods.length">
+                <md-subheader>Periods</md-subheader>
+                <md-list-item ng-repeat="period in activity.periods">
+                  [[period]]
+                </md-list-item>
+              </md-list>
+            </md-content>
+          </md-list-item>
+          <md-divider></md-divider>
+
+      </div>
+      </md-list>
+      <md-button class="md-fab right-bottom" aria-label="New activity" ng-click="activities.new()">
+        <md-icon md-svg-src="{% static 'timeperiod/mdi/content/svg/production/ic_add_24px.svg' %}"></md-icon>
+      </md-button>
+    </md-content>
+
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-resource.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.10.0/angular-material.js"></script>
+ -->
+    <!-- Angular Material Dependencies -->
+    <script type="text/javascript" src="{% static 'timeperiod/libs/angularjs/1.3.15/angular.js' %}"></script>
+    <script type="text/javascript" src="{% static 'timeperiod/libs/angularjs/1.3.15/angular-resource.js' %}"></script>
+    <script type="text/javascript" src="{% static 'timeperiod/libs/angularjs/1.3.15/angular-animate.js' %}"></script>
+    <script type="text/javascript" src="{% static 'timeperiod/libs/angularjs/1.3.15/angular-aria.js' %}"></script>
+    <!-- Angular Material Javascript now available via Google CDN; version 0.10 used here -->
+    <script type="text/javascript" src="{% static 'timeperiod/libs/angular_material/0.10.0/angular-material.js' %}"></script>
+
+
+    <script type="text/javascript" src="{% static 'timeperiod/app.js' %}"></script>
+
+  </body>
  </html>
