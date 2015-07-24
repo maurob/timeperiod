@@ -11,58 +11,68 @@
     <link rel="stylesheet" href="{% static 'timeperiod/app.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body ng-controller="ActivitiesCtrl as activities">
-    <md-content>
+  <body ng-controller="ActivitiesCtrl as activities" layout-fill>
+    <md-toolbar layout="row">
+      <h3 class="md-toolbar-tools">Activities</h3>
+      <span flex></span>
+      <md-button class="" aria-label="New activity" ng-click="activities.new()">
+        <md-icon md-svg-src="{% static 'timeperiod/mdi/content/svg/production/ic_add_24px.svg' %}"></md-icon>
+      </md-button>
+    </md-toolbar>
+    <md-content flex style="height: 100%;">
       <md-list>
-        <md-subheader>Activities</md-subheader>
-        <md-divider></md-divider>
+        <!-- <md-subheader>Activities</md-subheader> -->
+        <!-- <md-divider></md-divider> -->
         <div ng-repeat="activity in activities.list">
 
           <!-- Activity item summary -->
-          <md-list-item class="md-3-line">
-            
-            <md-button class="md-primary" aria-label="Edit activity" ng-click="activities.edit(activity)">
-              <md-icon md-svg-src="{% static 'timeperiod/mdi/navigation/svg/production/ic_arrow_drop_down_24px.svg' %}"></md-icon>
-            </md-button>
-            
-            <div class="md-list-item-text">
-              <h3>[[ activity.name ]]</h3>
-              <p>Periods: [[ activity.periods.length ]] <span ng-show="activity.running">Running...</span></p>
-            </div>
+          <md-card>
+            <md-list-item id="[[activity.$$hashKey]]" class="md-2-line" layout="row" layout-align="space-between center">
+              <div layout="row">
 
-            <md-button class="md-fab" aria-label="Activity edition" ng-click="activities.toggleRunning(activity)">
-              <md-icon md-svg-src="[[activities.getAVImage(activity)]]" ></md-icon>
-            </md-button>
-            <!-- <md-switch ng-model="activity.running" ng-disabled="activity.editing"></md-switch> -->
+                <md-button class="md-primary" aria-label="Edit activity" ng-click="activities.edit(activity)">
+                  <md-icon ng-hide="activity.editing" md-svg-src="{% static 'timeperiod/mdi/navigation/svg/production/ic_arrow_drop_down_24px.svg' %}"></md-icon>
+                  <span ng-show="activity.editing">Save</span>
+                </md-button>
+                
+                <div class="md-list-item-text">
+                  <h3>[[ activity.name ]]</h3>
+                  <p>Periods: [[ activity.periods.length ]] <span ng-show="activity.running">Running...</span></p>
+                </div>
+
+              </div>
+              <md-button class="md-fab" aria-label="Run activity" ng-click="activities.toggleRunning(activity)">
+                <md-icon md-svg-src="[[activities.getAVImage(activity)]]" ></md-icon>
+              </md-button>
           </md-list-item>
 
           <!-- Activity item edition -->
-          <div ng-show="activity.editing">
-            <md-divider></md-divider>
-            <md-list-item>
-              <md-content layout="column">
-                <md-input-container>
-                  <label>Activity name</label>
-                  <input ng-model="activity.name">
-                </md-input-container>
-                <md-list ng-show="activity.periods.length">
-                  <md-subheader>Periods</md-subheader>
-                  <md-list-item ng-repeat="period in activity.periods">
-                    [[period]]
-                  </md-list-item>
-                </md-list>
-              </md-content>
-            </md-list-item>
-          </div>
+          <md-card ng-if="activity.editing" class="fade" layout="column" layout-align="space-around center" layout-margin>
+            <md-input-container>
+              <label>Activity name</label>
+              <input ng-model="activity.name">
+            </md-input-container>
 
-          <md-divider></md-divider>
+            <!-- Period list -->
+            <md-card ng-if="activity.periods.length" flex layout="column">
+              <md-list>
+                <md-subheader>Periods</md-subheader>
+                <md-divider></md-divider>
+                <md-list-item class="md-2-line" ng-repeat="period_href in activity.periods">
+                  <period href="period_href"></period>
+                </md-list-item>
+              </md-list>
+            </md-card>
+          </md-card>
+        </md-card>
+
 
       </div>
       </md-list>
-      <md-button class="md-fab right-bottom" aria-label="New activity" ng-click="activities.new()">
+<!--       <md-button class="md-fab right-bottom" aria-label="New activity" ng-click="activities.new()">
         <md-icon md-svg-src="{% static 'timeperiod/mdi/content/svg/production/ic_add_24px.svg' %}"></md-icon>
       </md-button>
-    </md-content>
+ -->    </md-content>
 
 <!--
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js"></script>
