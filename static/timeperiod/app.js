@@ -21,10 +21,40 @@
         return $resourse('api/users/:id/activities/', {id: 'current'});
     }])
 
-    .controller('ActivitiesCtrl', ['Activity', '$anchorScroll', '$location', function(Activity, $anchorScroll, $location) {
+    .controller('OptionsCtrl', ['User', '$mdSidenav', '$http', function(User, $mdSidenav, $http) {
+        var options = this;
+        options.user = null;
+        options.user_is_auth = false;
+
+        User.get(function(data){
+            options.user = data;
+            options.user_is_auth = true;
+        }, function(){
+            options.user = null;
+            options.user_is_auth = false;
+        });
+
+        options.logout = function(){
+            $http.get("/api-auth/logout/")
+            .success(function(){
+                options.user = null;
+            });
+        }
+    }])
+
+    .controller('ActivitiesCtrl', ['Activity', '$anchorScroll', '$location', '$mdSidenav', function(Activity, $anchorScroll, $location, $mdSidenav) {
         var vm = this;
         vm.list = [];
         $anchorScroll.yOffset = 500;
+
+        vm.toggleSidenavbar = function(){
+            var navID = "left";
+            $mdSidenav(navID)
+            .toggle()
+            .then(function () {
+                $log.debug("toggle " + navID + " is done");
+            });
+          }
 
         Activity.query(function(list){
             vm.list = list;
@@ -32,6 +62,7 @@
         })
 
         vm.new = function(){
+
             var obj = {name:'', periods:[], editing:true};
             vm.list.unshift(obj);
         }
