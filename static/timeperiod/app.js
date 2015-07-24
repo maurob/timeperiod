@@ -21,48 +21,76 @@
         return $resourse('api/users/:id/activities/', {id: 'current'});
     }])
 
-    .controller('OptionsCtrl', ['User', '$mdSidenav', '$http', function(User, $mdSidenav, $http) {
+
+
+    .controller('OptionsCtrl', ['User', '$mdSidenav', '$http', "$mdToast", function(User, $mdSidenav, $http, $mdToast) {
         var options = this;
         options.user = null;
-        options.user_is_auth = false;
 
-        User.get(function(data){
-            options.user = data;
-            options.user_is_auth = true;
-        }, function(){
-            options.user = null;
-            options.user_is_auth = false;
-        });
+        options.getUser = function() {
+            User.get(function(data){
+                options.user = data;
+                options.activities.update();
+            }, function(error){
+                options.user = null;
+                $mdToast.show(
+                  $mdToast.simple()
+                  .content(error.data.detail)
+                  .position("left right bottom")
+                  .hideDelay(3000)
+                );
+            });
+        };
+
+        options.getUser();
 
         options.logout = function(){
             $http.get("/api-auth/logout/")
             .success(function(){
                 options.user = null;
             });
-        }
+        };
+
+        options.login = function(){
+            var data = "username="+options.username+"&password="+options.password;
+            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            $http.post("/api-auth/login/?next=/timeperiod/", data)
+            .success(function(data){
+                console.log(data);
+                options.username = null;
+                options.password = null;
+                options.getUser();
+            })
+            .error(function(data, status, headers, config) {
+                $mdToast.show(
+                  $mdToast.simple()
+                  .content('Server error: '+status)
+                  .position("left right bottom")
+                  .hideDelay(3000)
+                );
+            });
+        };
     }])
 
-    .controller('ActivitiesCtrl', ['Activity', '$anchorScroll', '$location', '$mdSidenav', function(Activity, $anchorScroll, $location, $mdSidenav) {
+    .controller('ActivitiesCtrl', ['User', 'Activity', '$anchorScroll', '$location', '$mdSidenav', function(User, Activity, $anchorScroll, $location, $mdSidenav) {
         var vm = this;
         vm.list = [];
-        $anchorScroll.yOffset = 500;
 
         vm.toggleSidenavbar = function(){
             var navID = "left";
             $mdSidenav(navID)
-            .toggle()
-            .then(function () {
-                $log.debug("toggle " + navID + " is done");
-            });
+            .toggle();
           }
 
-        Activity.query(function(list){
-            vm.list = list;
-            console.log(list);
-        })
+        vm.update = function() {
+            Activity.query(function(list){
+                vm.list = list;
+            })
+        };
+
+        vm.update();
 
         vm.new = function(){
-
             var obj = {name:'', periods:[], editing:true};
             vm.list.unshift(obj);
         }

@@ -17,17 +17,27 @@
   <div ng-controller="OptionsCtrl as options">
   <div layout="row">
     <md-sidenav class="md-sidenav-left md-whiteframe-z5" md-component-id="left">
-      <md-card layout="column" layout-align="center center" ng-show="options.user" class="md-theme-dark">
+      <md-card layout="column" layout-align="center center" ng-show="options.user">
       <h1>
         [[options.user.username]]
       </h1>
       <md-button ng-click="options.logout()">Logout</md-button>
       </md-card>
       <md-card layout="column" layout-align="center center" ng-hide="options.user">
-      <md-button href="/api-auth/login/?next=/timeperiod">Login</md-button>
+          <form name="loginForm">
+            <md-input-container>
+              <label>Username</label>
+              <input ng-model="options.username" name="username" required autocapitalize="off" maxlength="100" autocorrect="off">
+            </md-input-container>
+            <md-input-container>
+              <label>Password</label>
+              <input type="password" ng-model="options.password" name="password" required autocapitalize="off" maxlength="100" autocorrect="off">
+            </md-input-container>
+            <md-button type="submit" ng-click="options.login()">Login</md-button>
+          </form>
       </md-card>
     </md-sidenav>
-  <div ng-controller="ActivitiesCtrl as activities" layout-fill layout="column">
+  <div ng-controller="ActivitiesCtrl as activities" layout-fill layout="column" ng-init="options.activities = activities">
 
     <md-toolbar layout="row">
       <md-button aria-label="Options" ng-click="activities.toggleSidenavbar()">
