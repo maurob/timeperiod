@@ -13,14 +13,21 @@
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     })
 
+    .config(['$resourceProvider', function($resourceProvider) {
+      $resourceProvider.defaults.stripTrailingSlashes = false;
+    }])
+
     .factory('User', ['$resource', function($resourse) {
         return $resourse('api/users/:id/', {id: 'current'});
     }])
     
     .factory('Activity', ['$resource', function($resourse) {
-        return $resourse('api/users/:id/activities/', {id: 'current'});
+        return $resourse('api/activities/', null, {'update': { method:'PUT' }});
     }])
 
+    .factory('Periods', ['$resource', function($resourse) {
+        return $resourse('api/activities/:id/periods/', {id:'@id'});
+    }])
 
 
     .controller('OptionsCtrl', ['User', '$mdSidenav', '$http', "$mdToast", function(User, $mdSidenav, $http, $mdToast) {
@@ -72,7 +79,7 @@
         };
     }])
 
-    .controller('ActivitiesCtrl', ['User', 'Activity', '$anchorScroll', '$location', '$mdSidenav', function(User, Activity, $anchorScroll, $location, $mdSidenav) {
+    .controller('ActivitiesCtrl', ['Periods', '$http', 'User', 'Activity', '$anchorScroll', '$location', '$mdSidenav', function(Periods, $http, User, Activity, $anchorScroll, $location, $mdSidenav) {
         var vm = this;
         vm.list = [];
 
@@ -83,21 +90,31 @@
           }
 
         vm.update = function() {
-            Activity.query(function(list){
-                vm.list = list;
+            Activity.query(function(activities){
+                vm.list = activities;
             })
         };
 
         vm.update();
 
         vm.new = function(){
-            var obj = {name:'', periods:[], editing:true};
-            vm.list.unshift(obj);
+            Activity.save(function(obj){
+                obj.editing = true;
+                vm.list.unshift(obj);
+            }, function(){
+                console.log("save bad");
+            });
         }
 
         vm.edit = function(activity) {
-            if(activity.editing)
+            if(activity.editing) {
                 activity.editing = false;
+                $http.put(activity.url, activity).success(function(obj){
+                    console.log("update ok");
+                }).error(function(){
+                    console.log("update bad");
+                });
+            }
             else {
                 activity.editing = true;
                 var newHash = activity.$$hashKey;
@@ -105,15 +122,45 @@
                     $location.hash(newHash);
                 else
                     $anchorScroll();
+                $http.get(activity.url+'periods/').success(function(data){
+                    activity.periods = data;
+                    console.log(activity);
+                });
             }
         }
 
+        vm.eliminate = function(activity, index){
+            $http.delete(activity.url).success(function (data, status) {
+                vm.list.splice(index, 1);
+            }).error(function(){
+                console.log("delete bad");
+            });
+        }
+
         vm.toggleRunning = function(activity) {
-            if(activity.running)
+            if(activity.running) {
                 activity.running = false;
+                var period = activity.periods[activity.periods.length-1]
+                var now = new Date();
+                period.end = now.toJSON();
+                console.log(period);
+                $http.put(period.url, period).success(function(obj){
+                    console.log(obj)
+                });
+            }
             else {
                 activity.running = true;
-                activity.periods.push({start:1});
+
+                $http.post('api/periods/', {activity: activity.url})
+                .success(function(period) {
+                    period.end = period.start;
+                    if(!('periods' in activity))
+                        activity.periods = [];
+                    activity.periods.push(period);
+                })
+                .error(function(data, status, headers, config){
+                    vm.response_error = data;
+                });
             }
         }
 
@@ -122,6 +169,14 @@
                 return "/static/timeperiod/mdi/av/svg/production/ic_pause_48px.svg";
             else
                 return "/static/timeperiod/mdi/av/svg/production/ic_play_arrow_48px.svg";
+        }
+
+        vm.retrieve_total = function(activity){
+            console.log('retrieve_total')
+            $http.get(activity.url+'total/').success(function(data){
+                console.log('data '+data)
+                activity.total = Number(data);
+            });
         }
 
     }])
@@ -141,6 +196,12 @@
         }
     })
 
+    .filter("sanitize", ['$sce', function($sce) {
+        return function(htmlCode){
+            return $sce.trustAsHtml(htmlCode);
+        }
+    }])
+
     .directive('period', function(){
         return{
             restrict: 'E',
@@ -148,30 +209,29 @@
             controller: 'PeriodCtrl',
             controllerAs: 'period',
             scope: {
-                period_href: '=href'
+                period_json: '=json'
             }
         };
     })
 
     .controller('PeriodCtrl', ['$scope', '$http','$mdDialog', function($scope, $http, $mdDialog) {
         var period = this;
-        period.start = 0;
-        period.end = 0;
+        period.start = $scope.period_json.start;
+        period.end = $scope.period_json.end;
         period.editing = false;
-        period.href = $scope.period_href;
+        period.href = $scope.period_json.url;
 
         period.retrieve = function() {
             $http.get(period.href)
             .success(function(data) {
                 period.start = data.start;
                 period.end = data.end;
+                period.href = data.url;
             })
             .error(function(data, status, headers, config){
                 console.log(status);
             });
         }
-
-        period.retrieve();
 
         period.edit = function() {
             if(period.editing) {
@@ -185,7 +245,10 @@
 
         period.duration = function() {
             var start = new Date(period.start);
-            var end = new Date(period.end);
+            if(period.end)
+                var end = new Date(period.end);
+            else
+                return 0;
             var diff = (end - start) / 1e3;
             return diff;
             
@@ -194,6 +257,12 @@
         };
 
         period.eliminate = function() {
+            console.log(period);
+            $http.delete(period.href).success(function (data, status) {
+                // vm.list.splice(index, 1);
+            }).error(function(){
+                console.log("delete bad");
+            });
         };
 
         period.showAlert = function(ev) {
@@ -206,7 +275,7 @@
                 .cancel('Keep it')
                 .targetEvent(ev);
             $mdDialog.show(confirm).then(function() {
-
+                period.eliminate();
             }, function() {
 
             });

@@ -1,0 +1,25 @@
+<div layout="row">
+
+    <md-button class="md-primary" aria-label="Edit period" ng-click="period.edit()">
+        <md-icon md-svg-src="/static/timeperiod/mdi/navigation/svg/production/ic_arrow_drop_down_24px.svg"></md-icon>
+    </md-button>
+
+    <div class="md-list-item-text">
+        <h3>[[ period.start | date:'yyyy-MM-dd HH:mm:ss' ]]</h3>
+        <p>Duration: [[ period.duration() | timediff ]]</p>
+    </div>
+
+</div>
+
+<!-- Period item edition -->
+<md-whiteframe ng-show="period.editing" class="md-whiteframe-z2" layout="column" layout-align="space-around center" layout-margin>
+    <md-input-container flex>
+        <label>Start</label>
+        <input ng-model="period.start">
+    </md-input-container>
+    <md-input-container flex>
+        <label>End</label>
+        <input ng-model="period.end">
+    </md-input-container>
+    <md-button class="md-warn" ng-click="period.showAlert($event)">Eliminate</md-button>
+</md-whiteframe>

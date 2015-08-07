@@ -50,7 +50,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         if request.user and request.user.is_staff:
-            return super(UserViewSet, self).list(request)
+            return super(ActivityViewSet, self).list(request)
         else:
             queryset = self.queryset.filter(user=request.user)
             serializer = self.serializer_class(queryset, many=True, context={'request': request})
